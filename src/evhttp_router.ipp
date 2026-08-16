@@ -6,14 +6,24 @@
 #include <unordered_map>
 #include <vector>
 
+#include <cstring>
+
 class evhttp_pathvars
 {
 private:
-    std::vector<std::string> vars;
-
+    const std::vector<std::string>& _vars;
 public:
-    evhttp_pathvars();
+    evhttp_pathvars(const std::vector<std::string>& vars) : _vars(vars) {}
     ~evhttp_pathvars() = default;
+    const char *get(int index) const
+    {
+        return _vars.at(index).c_str();
+    }
+
+    int size() const
+    {
+        return static_cast<int>(_vars.size());
+    }
 };
 
 class evhttp_router
@@ -25,12 +35,49 @@ private:
     void *_arg;
 
 public:
-    evhttp_router();
+    evhttp_router() = default;
     ~evhttp_router() = default;
-    evhttp_router *get_child(const std::string &segment, bool create_if_missing);
-    evhttp_router *get_wildcard(bool create_if_missing);
-    std::pair<evhttp_handler *, void *> get_handler();
-    void set_handler(const evhttp_handler *handler, void *arg);
+    evhttp_router *get_child(const std::string &segment, bool create_if_missing)
+    {
+        evhttp_router *result(nullptr);
+        auto it = _child_nodes.find(segment);
+        if (it == _child_nodes.end())
+        {
+            if (create_if_missing)
+            {
+                auto new_node = std::make_unique<evhttp_router>();
+                result = new_node.get();
+                _child_nodes[segment] = std::move(new_node);
+            }
+        }
+        else
+        {
+            result = it->second.get();
+        }
+        return result;
+    }
+
+    evhttp_router *get_wildcard(bool create_if_missing)
+    {
+
+    }
+    
+    std::pair<evhttp_handler *, void *> get_handler()
+    {
+        return { _handler.get(), _arg };
+    }
+
+    void set_handler(const evhttp_handler *handler, void *arg)
+    {
+        evhttp_handler *new_handler(nullptr);
+        if (handler != nullptr)
+        {
+            new_handler = new(evhttp_handler);
+            std::memcpy(new_handler, handler, sizeof(evhttp_handler));
+        }
+        _handler.reset(new_handler);
+        _arg = arg;
+    }
 };
 
 template <typename SegmentHandler>
@@ -60,3 +107,45 @@ evhttp_router *evhttp_route(evhttp_router *router, const char *path, SegmentHand
 
     return current;
 }
+
+class evhttp_route_mapper
+{
+public:
+    evhttp_route_mapper() = default;
+    ~evhttp_route_mapper() = default;
+    evhttp_router *operator()(evhttp_router *router, const std::string& segment)
+    {
+        evhttp_router *next;
+        if (segment == "*")
+        {
+            next = router->get_wildcard(true);
+        }
+        else
+        {
+            next = router->get_child(segment, true);
+        }
+        return next;
+    }
+};
+
+class evhttp_route_matcher
+{
+private:
+    std::vector<std::string> _path_vars;
+public:
+    evhttp_route_matcher() = default;
+    ~evhttp_route_matcher() = default;
+    evhttp_router *operator()(evhttp_router *router, const std::string& segment)
+    {
+        evhttp_router *next = router->get_child(segment, false);
+        if (next == nullptr)
+        {
+            next = router->get_wildcard(false);
+            if (next != nullptr)
+            {
+                _path_vars.push_back(segment);
+            }
+        }
+        return next;
+    }
+};

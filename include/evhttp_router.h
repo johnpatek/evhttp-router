@@ -78,8 +78,10 @@ void evhttp_router_free(struct evhttp_router *router);
  * struct does not need to remain valid after this call, as the router will copy the 
  * necessary information.
  * @param arg User-defined argument to be passed to the handler callbacks.
+ * @return struct evhttp_router* router on success, NULL on failure. A failure will 
+ * only occur if the pattern is invalid.
  */
-void evhttp_router_handle(struct evhttp_router *router, const char *pattern, const struct evhttp_handler *handler, void *arg);
+struct evhttp_router *evhttp_router_handle(struct evhttp_router *router, const char *pattern, const struct evhttp_handler *handler, void *arg);
 
 #if defined(__cplusplus)
 }
