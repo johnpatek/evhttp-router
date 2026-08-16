@@ -1,0 +1,11 @@
+{
+    "name" : "evhttp-router",
+    "version" : "0.1.0",
+    "description" : "Libevent HTTP Router",
+    "homepage" : "https://github.com/lariat-app/lariat-data-platform",
+    "license" : "MIT",
+    "dependencies" : [
+        "libevent",
+        "maxtest"
+    ]
+}
