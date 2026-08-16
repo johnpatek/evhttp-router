@@ -38,7 +38,7 @@ struct evhttp_router
             return lut[cmd % 11];
         }
         std::array<callback, 9> _callbacks;
-        mutable void *_arg;
+        void *_arg;
 
     public:
         functionmap(const evhttp_handler *handler, void *arg) : _arg(arg)
