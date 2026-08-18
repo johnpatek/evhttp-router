@@ -25,7 +25,7 @@ namespace evhttprouter
     private:
         static void method_not_allowed(struct evhttp_request *req)
         {
-            evhttp_send_reply(req, 405, "Method Not Allowed", nullptr);
+            evhttp_send_error(req, 405, "Method Not Allowed");
         }
 
     public:
@@ -38,7 +38,6 @@ namespace evhttprouter
         virtual void onDelete(struct evhttp_request *req, const PathVars &vars) { method_not_allowed(req); }
         virtual void onOptions(struct evhttp_request *req, const PathVars &vars) { method_not_allowed(req); }
         virtual void onTrace(struct evhttp_request *req, const PathVars &vars) { method_not_allowed(req); }
-        virtual void onConnect(struct evhttp_request *req, const PathVars &vars) { method_not_allowed(req); }
         virtual void onPatch(struct evhttp_request *req, const PathVars &vars) { method_not_allowed(req); }
     };
 
@@ -67,7 +66,6 @@ namespace evhttprouter
                 .delete_cb = callback<&Handler::onDelete>,
                 .options_cb = callback<&Handler::onOptions>,
                 .trace_cb = callback<&Handler::onTrace>,
-                .connect_cb = callback<&Handler::onConnect>,
                 .patch_cb = callback<&Handler::onPatch>,
             };
             evhttp_router_handle(_router.get(), pattern, &ev_handler, handler);

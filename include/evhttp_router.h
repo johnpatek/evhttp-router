@@ -22,6 +22,12 @@ struct evhttp_pathvars;
  */
 struct evhttp_router;
 
+/**
+ * @brief Structure representing callbacks for each HTTP method of a given 
+ * route. This structure can be initialized such that some, none, or all of 
+ * the methods are supported. If a given method is left NULL, it will send 
+ * a 405 error. 
+ */
 struct evhttp_handler
 {
     void (*get_cb)(struct evhttp_request *req, const struct evhttp_pathvars *vars, void *arg);
@@ -31,7 +37,6 @@ struct evhttp_handler
     void (*delete_cb)(struct evhttp_request *req, const struct evhttp_pathvars *vars, void *arg);
     void (*options_cb)(struct evhttp_request *req, const struct evhttp_pathvars *vars, void *arg);
     void (*trace_cb)(struct evhttp_request *req, const struct evhttp_pathvars *vars, void *arg);
-    void (*connect_cb)(struct evhttp_request *req, const struct evhttp_pathvars *vars, void *arg);
     void (*patch_cb)(struct evhttp_request *req, const struct evhttp_pathvars *vars, void *arg);
 };
 

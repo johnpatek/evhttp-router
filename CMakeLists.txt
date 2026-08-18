@@ -20,9 +20,12 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 
 find_package(Libevent CONFIG REQUIRED)
 
+add_library(evhttp_router_common INTERFACE)
+target_include_directories(evhttp_router_common INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/include)
+target_link_libraries(evhttp_router_common INTERFACE libevent::core libevent::extra)
+
 add_library(evhttp_router STATIC ${CMAKE_CURRENT_SOURCE_DIR}/src/evhttp_router.cpp)
-target_include_directories(evhttp_router PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
-target_link_libraries(evhttp_router PUBLIC libevent::core libevent::extra)
+target_link_libraries(evhttp_router PUBLIC evhttp_router_common)
 
 add_executable(stringservice ${CMAKE_CURRENT_SOURCE_DIR}/examples/example.c)
 target_link_libraries(stringservice PRIVATE evhttp_router)
