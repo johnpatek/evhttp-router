@@ -181,7 +181,8 @@ static void evhttp_router_cb(evhttp_request *req, void *arg)
     evhttp_route_matcher matcher(path_vars);
     const char *path = evhttp_uri_get_path(evhttp_request_get_evhttp_uri(req));
     evhttp_router *match = evhttp_route(router, path, matcher);
-    if (!match || !match->get_handler().first)
+    const bool handlerFound = (match != nullptr && match->get_handler().first != nullptr);
+    if (!handlerFound)
     {
         match = router;
         path_vars.clear();
