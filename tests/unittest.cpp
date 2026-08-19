@@ -2,7 +2,6 @@
 
 void unittest::TestClient::requestDone(evhttp_request *req, void *arg)
 {
-    std::cerr << "requestDone: " << evhttp_request_get_command(req) << std::endl;
     unittest::TestClient::RequestData *data = static_cast<unittest::TestClient::RequestData *>(arg);
     (data->callback)(req);
     data->counter->fetch_sub(1);

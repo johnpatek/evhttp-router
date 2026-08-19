@@ -30,7 +30,6 @@ namespace unittest
         static void expectCode(evhttp_request *req)
         {
             const int code = evhttp_request_get_response_code(req);
-            std::cerr << "expected code: " << Code << ", actual code: " << code << std::endl;
             MAXTEST_ASSERT(code == Code);
         }
         TestClient(event_base *base);

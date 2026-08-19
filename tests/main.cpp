@@ -135,7 +135,6 @@ private:
     template<int ParameterCount>
     static void handleGetWildcard(evhttp_request *req, const evhttp_pathvars *vars, void *arg)
     {
-        std::cerr << "handleGetWildcard: " << evhttp_request_get_command(req) << std::endl;
         MAXTEST_ASSERT(evhttp_pathvars_size(vars) == ParameterCount);
         bool wildcardMatch(true);
         for (int index = 0; index < ParameterCount; ++index)
