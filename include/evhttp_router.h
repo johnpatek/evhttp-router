@@ -81,7 +81,7 @@ void evhttp_router_free(struct evhttp_router *router);
  * handler will be used as a default handler for any unmatched requests.
  * @param handler The handler containing callbacks for different HTTP methods. This 
  * struct does not need to remain valid after this call, as the router will copy the 
- * necessary information.
+ * necessary information. If NULL, the existing handler will be removed if it exists.
  * @param arg User-defined argument to be passed to the handler callbacks.
  * @return struct evhttp_router* router on success, NULL on failure. A failure will 
  * only occur if the pattern is invalid.
