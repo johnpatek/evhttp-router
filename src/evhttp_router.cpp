@@ -40,7 +40,7 @@ public:
     evhttp_router() = default;
     ~evhttp_router() = default;
 
-    evhttp_router *get_child(const std::string &segment, bool create_if_missing)
+    evhttp_router *get_child(std::string_view segment, bool create_if_missing)
     {
         evhttp_router *result(nullptr);
         auto it = std::find_if(_child_nodes.begin(), _child_nodes.end(),
@@ -106,7 +106,9 @@ evhttp_router *evhttp_route(evhttp_router *router, const char *path, SegmentHand
     size_t start(0);
     size_t end;
     std::string_view segment;
-    while (start != std::string_view::npos && !path_view.empty() && current != nullptr)
+    
+    bool parsing(true);
+    while (parsing)
     {
         start = path_view.find_first_not_of('/');
         if (start != std::string_view::npos)
@@ -122,7 +124,12 @@ evhttp_router *evhttp_route(evhttp_router *router, const char *path, SegmentHand
                 segment = path_view.substr(start);
                 path_view.remove_prefix(path_view.size());
             }
-            current = segment_handler(current, std::string(segment));
+            current = segment_handler(current, segment);
+            parsing &= (current != nullptr);
+        }
+        else
+        {
+            parsing = false;
         }
     }
     return current;
@@ -133,7 +140,7 @@ class evhttp_route_mapper
 public:
     evhttp_route_mapper() = default;
     ~evhttp_route_mapper() = default;
-    evhttp_router *operator()(evhttp_router *router, const std::string &segment)
+    evhttp_router *operator()(evhttp_router *router, std::string_view segment)
     {
         evhttp_router *next;
         if (segment == "*")
@@ -158,7 +165,7 @@ public:
     {
     }
     ~evhttp_route_matcher() = default;
-    evhttp_router *operator()(evhttp_router *router, const std::string &segment)
+    evhttp_router *operator()(evhttp_router *router, std::string_view segment)
     {
         evhttp_router *next = router->get_child(segment, false);
         if (next == nullptr)
@@ -166,7 +173,7 @@ public:
             next = router->get_wildcard(false);
             if (next != nullptr)
             {
-                _path_vars.push_back(segment);
+                _path_vars.push_back(std::string(segment));
             }
         }
         return next;
@@ -181,7 +188,8 @@ static void evhttp_router_cb(evhttp_request *req, void *arg)
     evhttp_route_matcher matcher(path_vars);
     const char *path = evhttp_uri_get_path(evhttp_request_get_evhttp_uri(req));
     evhttp_router *match = evhttp_route(router, path, matcher);
-    if (!match)
+    const bool handlerFound = (match != nullptr && match->get_handler().first != nullptr);
+    if (!handlerFound)
     {
         match = router;
         path_vars.clear();
@@ -261,9 +269,7 @@ evhttp_router *evhttp_router_handle(evhttp_router *router, const char *pattern, 
     evhttp_route_mapper mapper;
     const char *path = (pattern != nullptr) ? pattern : "";
     evhttp_router *node = evhttp_route(router, path, mapper);
-    if (node != nullptr)
-    {
-        node->set_handler(handler, arg);
-    }
+    // TODO: check for bad paths
+    node->set_handler(handler, arg);
     return node;
 }
