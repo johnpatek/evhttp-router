@@ -187,27 +187,19 @@ protected:
 class HandlerTest : public unittest::TestCase
 {
 private:
-    static void initialHandleGet(evhttp_request *req, const struct evhttp_pathvars *vars, void *arg)
-    {
-        
-        evhttp_send_error(req, HTTP_INTERNAL, "Internal Error");
-    }
-    static void updatedHandleGet(evhttp_request *req, const struct evhttp_pathvars *vars, void *arg)
+    static void handleGet(evhttp_request *req, const struct evhttp_pathvars *vars, void *arg)
     {
         evhttp_send_reply(req, HTTP_OK, "Ok", nullptr);
     }
 protected:
     virtual void onSetup(evhttp_router *router, unittest::TestClient &client)
     {
-        const evhttp_handler initialHandler = {
-            .get_cb = initialHandleGet,
+        const evhttp_handler handler = {
+            .get_cb = &handleGet,
         };
-        const evhttp_handler updatedHandler = {
-            .get_cb = updatedHandleGet,
-        };
-        evhttp_router_handle(router, "/resource", &initialHandler, nullptr);
-        evhttp_router_handle(router, "/resource", &updatedHandler, nullptr);
-        client.makeRequest(EVHTTP_REQ_GET, "/resource", unittest::TestClient::expectCode<HTTP_OK>);
+        evhttp_router_handle(router, "/removed", &handler, nullptr);
+        evhttp_router_handle(router, "/removed", nullptr, nullptr);
+        client.makeRequest(EVHTTP_REQ_GET, "/removed", unittest::TestClient::expectCode<HTTP_NOTFOUND>);
     }
 };
 
