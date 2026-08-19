@@ -200,6 +200,8 @@ protected:
         evhttp_router_handle(router, "/removed", &handler, nullptr);
         evhttp_router_handle(router, "/removed", nullptr, nullptr);
         client.makeRequest(EVHTTP_REQ_GET, "/removed", unittest::TestClient::expectCode<HTTP_NOTFOUND>);
+        client.makeRequest(EVHTTP_REQ_GET, "/", unittest::TestClient::expectCode<HTTP_NOTFOUND>);
+        client.makeRequest(EVHTTP_REQ_GET, "", unittest::TestClient::expectCode<HTTP_NOTFOUND>);
     }
 };
 
