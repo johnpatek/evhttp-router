@@ -83,8 +83,15 @@ public:
         evhttp_handler *new_handler(nullptr);
         if (handler != nullptr)
         {
-            new_handler = new (evhttp_handler);
-            std::memcpy(new_handler, handler, sizeof(evhttp_handler));
+            new_handler = new evhttp_handler;
+            new_handler->get_cb = handler->get_cb;
+            new_handler->post_cb = handler->post_cb;
+            new_handler->head_cb = handler->head_cb;
+            new_handler->put_cb = handler->put_cb;
+            new_handler->delete_cb = handler->delete_cb;
+            new_handler->options_cb = handler->options_cb;
+            new_handler->trace_cb = handler->trace_cb;
+            new_handler->patch_cb = handler->patch_cb;
         }
         _handler.reset(new_handler);
         _arg = arg;
