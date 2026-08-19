@@ -106,7 +106,9 @@ evhttp_router *evhttp_route(evhttp_router *router, const char *path, SegmentHand
     size_t start(0);
     size_t end;
     std::string_view segment;
-    while (start != std::string_view::npos && current != nullptr)
+    
+    bool parsing(true);
+    while (parsing)
     {
         start = path_view.find_first_not_of('/');
         if (start != std::string_view::npos)
@@ -123,6 +125,11 @@ evhttp_router *evhttp_route(evhttp_router *router, const char *path, SegmentHand
                 path_view.remove_prefix(path_view.size());
             }
             current = segment_handler(current, segment);
+            parsing &= (current != nullptr);
+        }
+        else
+        {
+            parsing = false;
         }
     }
     return current;
