@@ -22,6 +22,12 @@ struct evhttp_pathvars;
  */
 struct evhttp_router;
 
+/**
+ * @brief Structure representing callbacks for each HTTP method of a given 
+ * route. This structure can be initialized such that some, none, or all of 
+ * the methods are supported. If a given method is left NULL, it will send 
+ * a 405 error. 
+ */
 struct evhttp_handler
 {
     void (*get_cb)(struct evhttp_request *req, const struct evhttp_pathvars *vars, void *arg);
@@ -31,7 +37,6 @@ struct evhttp_handler
     void (*delete_cb)(struct evhttp_request *req, const struct evhttp_pathvars *vars, void *arg);
     void (*options_cb)(struct evhttp_request *req, const struct evhttp_pathvars *vars, void *arg);
     void (*trace_cb)(struct evhttp_request *req, const struct evhttp_pathvars *vars, void *arg);
-    void (*connect_cb)(struct evhttp_request *req, const struct evhttp_pathvars *vars, void *arg);
     void (*patch_cb)(struct evhttp_request *req, const struct evhttp_pathvars *vars, void *arg);
 };
 
@@ -78,8 +83,10 @@ void evhttp_router_free(struct evhttp_router *router);
  * struct does not need to remain valid after this call, as the router will copy the 
  * necessary information.
  * @param arg User-defined argument to be passed to the handler callbacks.
+ * @return struct evhttp_router* router on success, NULL on failure. A failure will 
+ * only occur if the pattern is invalid.
  */
-void evhttp_router_handle(struct evhttp_router *router, const char *pattern, const struct evhttp_handler *handler, void *arg);
+struct evhttp_router *evhttp_router_handle(struct evhttp_router *router, const char *pattern, const struct evhttp_handler *handler, void *arg);
 
 #if defined(__cplusplus)
 }
