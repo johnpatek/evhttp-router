@@ -1,5 +1,8 @@
 # Libevent HTTP Router
 
+![status](https://github.com/johnpatek/evhttp-router/actions/workflows/pipeline.yml/badge.svg)
+[![codecov](https://codecov.io/gh/johnpatek/evhttp-router/branch/master/graph/badge.svg)](https://codecov.io/gh/johnpatek/evhttp-router)
+
 C/C++ extension for HTTP handling with libevent
 
 ## About
