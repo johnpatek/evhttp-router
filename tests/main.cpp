@@ -35,6 +35,7 @@ private:
         {
             evhttp_send_reply(req, HTTP_OK, "Ok", nullptr);
         }
+
     public:
         static void handle(evhttp_request *req, const evhttp_pathvars *vars, void *arg)
         {
@@ -132,7 +133,7 @@ protected:
 class WildcardTestData
 {
 private:
-    template<int ParameterCount>
+    template <int ParameterCount>
     static void handleGetWildcard(evhttp_request *req, const evhttp_pathvars *vars, void *arg)
     {
         MAXTEST_ASSERT(evhttp_pathvars_size(vars) == ParameterCount);
@@ -151,6 +152,7 @@ private:
             evhttp_send_error(req, HTTP_NOTFOUND, "Not Found");
         }
     }
+
 public:
     void setupRouter(evhttp_router *router)
     {
@@ -191,17 +193,25 @@ private:
     {
         evhttp_send_reply(req, HTTP_OK, "Ok", nullptr);
     }
+    const evhttp_handler _handler = {
+        .get_cb = &handleGet,
+    };
+
 protected:
     virtual void onSetup(evhttp_router *router, unittest::TestClient &client)
     {
-        const evhttp_handler handler = {
-            .get_cb = &handleGet,
-        };
-        evhttp_router_handle(router, "/removed", &handler, nullptr);
+
+        evhttp_router_handle(router, "/removed", &_handler, nullptr);
         evhttp_router_handle(router, "/removed", nullptr, nullptr);
         client.makeRequest(EVHTTP_REQ_GET, "/removed", unittest::TestClient::expectCode<HTTP_NOTFOUND>);
         client.makeRequest(EVHTTP_REQ_GET, "/", unittest::TestClient::expectCode<HTTP_NOTFOUND>);
-        client.makeRequest(EVHTTP_REQ_GET, "", unittest::TestClient::expectCode<HTTP_NOTFOUND>);
+        client.makeRequest(EVHTTP_REQ_GET, "", [&client, router, this](evhttp_request *req)
+                           {
+            unittest::TestClient::expectCode<HTTP_NOTFOUND>(req);
+            evhttp_router_handle(router, nullptr, &_handler, nullptr);
+            client.makeRequest(EVHTTP_REQ_GET, "/removed", unittest::TestClient::expectCode<HTTP_OK>);
+            client.makeRequest(EVHTTP_REQ_GET, "/", unittest::TestClient::expectCode<HTTP_OK>);
+            client.makeRequest(EVHTTP_REQ_GET, "", unittest::TestClient::expectCode<HTTP_OK>); });
     }
 };
 
@@ -212,11 +222,9 @@ protected:
         test.run();                \
     };
 
-MAXTEST_MAIN
-{
+MAXTEST_MAIN{
     TEST_CASE(BasicTest, basic_test)
-    TEST_CASE(MethodTest, method_test)
-    TEST_CASE(MethodTestCpp, method_test_cpp)
-    TEST_CASE(WildcardTest, wildcard_test)
-    TEST_CASE(HandlerTest, handler_test)
-};
+        TEST_CASE(MethodTest, method_test)
+            TEST_CASE(MethodTestCpp, method_test_cpp)
+                TEST_CASE(WildcardTest, wildcard_test)
+                    TEST_CASE(HandlerTest, handler_test)};
