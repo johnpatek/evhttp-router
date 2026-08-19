@@ -269,9 +269,7 @@ evhttp_router *evhttp_router_handle(evhttp_router *router, const char *pattern, 
     evhttp_route_mapper mapper;
     const char *path = (pattern != nullptr) ? pattern : "";
     evhttp_router *node = evhttp_route(router, path, mapper);
-    if (node != nullptr)
-    {
-        node->set_handler(handler, arg);
-    }
+    // TODO: check for bad paths
+    node->set_handler(handler, arg);
     return node;
 }
