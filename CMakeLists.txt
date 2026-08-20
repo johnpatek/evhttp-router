@@ -3,6 +3,10 @@ option(BUILD_EXAMPLES "Build examples" OFF)
 
 cmake_minimum_required(VERSION 3.20)
 
+if(BUILD_TESTS)
+    list(APPEND VCPKG_MANIFEST_FEATURES "tests")
+endif()
+
 if(NOT VCPKG_ROOT)
     set(VCPKG_ROOT $ENV{VCPKG_ROOT})
     if(NOT VCPKG_ROOT)

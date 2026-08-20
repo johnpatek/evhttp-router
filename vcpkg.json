@@ -5,7 +5,14 @@
     "homepage" : "https://github.com/lariat-app/lariat-data-platform",
     "license" : "MIT",
     "dependencies" : [
-        "libevent",
-        "maxtest"
-    ]
+        "libevent"
+    ],
+    "features": {
+        "tests": {
+            "description": "Build tests",
+            "dependencies": [
+                "maxtest"
+            ]
+        }
+    }
 }
