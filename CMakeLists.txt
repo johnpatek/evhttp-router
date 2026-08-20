@@ -27,9 +27,12 @@ target_link_libraries(evhttp_router_common INTERFACE libevent::core libevent::ex
 add_library(evhttp_router STATIC ${CMAKE_CURRENT_SOURCE_DIR}/src/evhttp_router.cpp)
 target_link_libraries(evhttp_router PUBLIC evhttp_router_common)
 
-add_executable(stringservice ${CMAKE_CURRENT_SOURCE_DIR}/examples/example.c)
-target_link_libraries(stringservice PRIVATE evhttp_router)
+if(BUILD_EXAMPLES)
+    add_subdirectory(examples)
+endif()
 
-find_package(maxtest CONFIG REQUIRED)
-enable_testing()
-add_subdirectory(tests)
+if(BUILD_TESTS)
+    find_package(maxtest CONFIG REQUIRED)
+    enable_testing()
+    add_subdirectory(tests)
+endif()
