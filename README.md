@@ -19,7 +19,10 @@ with no additional dependencies besides libevent.
 
 ### Integration
 
-
+The most simplest way to include `evhttp-router` in your project is to 
+use a `vcpkg` overlay port. If `vcpkg` is not available in your project, 
+you can copy the source and header files and include them in your CMake 
+build system. The only dependency is libevent.
 
 ### Limitations
 
